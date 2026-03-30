@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DIN.GE — სკოლებისა და კლასების ელფოსტები</title>
+  <style>
+    :root {
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-strong: #ffffff;
+      --text: #182235;
+      --muted: #61708a;
+      --line: rgba(73, 96, 138, 0.16);
+      --accent: #2454ff;
+      --accent-soft: rgba(36, 84, 255, 0.08);
+      --shadow: 0 14px 36px rgba(22, 38, 72, 0.10);
+      --radius-xl: 24px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --max-width: 1120px;
+      --school-nav-h: 84px;
+      --class-nav-h: 72px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--school-nav-h) + var(--class-nav-h) + 24px);
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Noto Sans Georgian", "DejaVu Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(36, 84, 255, 0.12), transparent 24%),
+        radial-gradient(circle at top right, rgba(0, 168, 150, 0.08), transparent 20%),
+        linear-gradient(180deg, #eef3fb 0%, #f6f8fc 100%);
+      line-height: 1.4;
+    }
+
+    .page {
+      width: min(100%, var(--max-width));
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius-xl);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      padding: 14px 18px;
+    }
+
+    .school-class-nav {
+      position: sticky;
+      top: var(--school-nav-h);
+      z-index: 35;
+      padding: 12px 18px;
+    }
+
+    .top-nav {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2454ff, #00a896);
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .menu,
+    .class-menu {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .menu {
+      justify-content: flex-end;
+    }
+
+    .school-class-nav__row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .school-class-nav__label {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .menu a,
+    .class-menu a,
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: var(--surface-strong);
+      border: 1px solid var(--line);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .menu a:hover,
+    .menu a.active,
+    .class-menu a:hover,
+    .class-menu a.active,
+    .tag:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(36, 84, 255, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .intro {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .intro h1 {
+      font-size: clamp(1.3rem, 1.6vw, 2rem);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .intro p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .intro__tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .class-section {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .class-section__head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .class-section__head h2 {
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .class-section__head p {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .student-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,247,255,0.95));
+      border: 1px solid rgba(73, 96, 138, 0.14);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: 0 8px 22px rgba(25, 45, 84, 0.06);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .student-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(36, 84, 255, 0.26);
+      box-shadow: 0 14px 28px rgba(25, 45, 84, 0.10);
+    }
+
+    .student-card__top {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .student-card__num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .student-card__name {
+      font-size: 1.28rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 12px;
+      word-break: break-word;
+    }
+
+    .student-card__mail {
+      display: block;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: rgba(36, 84, 255, 0.09);
+      border: 1px solid rgba(36, 84, 255, 0.10);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 1.95rem;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .student-card__mail:hover {
+      background: rgba(36, 84, 255, 0.14);
+    }
+
+    .placeholder {
+      padding: 20px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.96rem;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.55);
+    }
+
+    .school-block {
+      display: none;
+      gap: 18px;
+    }
+
+    .school-block.active {
+      display: grid;
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --school-nav-h: 126px;
+        --class-nav-h: 86px;
+      }
+
+      .top-nav {
+        grid-template-columns: 1fr;
+      }
+
+      .menu {
+        justify-content: flex-start;
+      }
+
+      .school-class-nav__row {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 700px) {
+      :root {
+        --school-nav-h: 126px;
+        --class-nav-h: 132px;
+      }
+
+      .page {
+        padding: 12px;
+      }
+
+      .topbar {
+        padding: 12px 14px;
+      }
+
+      .school-class-nav {
+        padding: 10px 14px;
+      }
+
+      .menu a,
+      .class-menu a,
+      .tag {
+        min-height: 40px;
+        padding: 0 14px;
+        font-size: 0.88rem;
+      }
+
+      .student-card__name {
+        font-size: 1.12rem;
+      }
+
+      .student-card__mail {
+        font-size: 1.38rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar panel">
+      <nav class="top-nav" aria-label="სკოლების მენიუ">
+        <a class="brand" href="#top">DIN.GE</a>
+        <ul class="menu" id="schoolMenu">
+          <li><a href="#school-vardisubani" class="active" data-school="vardisubani">ვარდისუბანი</a></li>
+          <li><a href="#school-6" data-school="school6">№ 6 სკოლა</a></li>
+          <li><a href="#school-tetritsklebi" data-school="tetritsklebi">თეთრიწყლები</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <section class="school-class-nav panel" aria-label="კლასების სწრაფი მენიუ">
+      <div class="school-class-nav__row">
+        <span class="school-class-nav__label" id="classMenuLabel">ვარდისუბანი:</span>
+        <ul class="class-menu" id="classMenu"></ul>
+      </div>
+    </section>
+
+    <section class="intro panel" id="top">
+      <div>
+        <h1>სკოლებისა და კლასების ელფოსტების გვერდი</h1>
+        <p>სკოლის შეცვლისას ზემოთა კლასების მენიუც ავტომატურად იცვლება.</p>
+      </div>
+      <div class="intro__tags">
+        <span class="tag">ერთსვეტიანი განლაგება</span>
+        <span class="tag">JavaScript მენიუ</span>
+        <span class="tag">სკოლა → კლასი</span>
+      </div>
+    </section>
+
+    <main>
+      <section class="school-block active" id="school-vardisubani-block" data-school-block="vardisubani">
+        <section class="class-section panel" id="school-vardisubani">
+          <div class="class-section__head">
+            <div>
+              <h2>ვარდისუბნის სკოლა</h2>
+              <p>ამ სკოლისთვის IV, V და VI კლასები შევსებულია.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="class-section panel" id="vardisubani-class-2">
+          <div class="class-section__head">
+            <div>
+              <h2>II კლასი</h2>
+              <p>მონაცემები დაემატება.</p>
+            </div>
+          </div>
+          <div class="placeholder">II კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+
+        <section class="class-section panel" id="vardisubani-class-3">
+          <div class="class-section__head">
+            <div>
+              <h2>III კლასი</h2>
+              <p>მონაცემები დაემატება.</p>
+            </div>
+          </div>
+          <div class="placeholder">III კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+
+        <section class="class-section panel" id="vardisubani-class-4">
+          <div class="class-section__head">
+            <div>
+              <h2>IV კლასი</h2>
+              <p>22 მოსწავლე</p>
+            </div>
+          </div>
+
+          <div class="cards">
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 1</span></div><div class="student-card__name">ᲐᲜᲐᲡᲢᲐᲡᲘᲐ ᲛᲐᲠᲒᲐᲚᲘᲢᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:anastasia554@din.ge">anastasia554@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 2</span></div><div class="student-card__name">ᲐᲜᲐᲡᲢᲐᲡᲘᲐ ᲒᲠᲫᲔᲚᲘᲕᲐᲜᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:anastasia719@din.ge">anastasia719@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 3</span></div><div class="student-card__name">ᲐᲜᲐᲡᲢᲐᲡᲘᲐ ᲯᲐᲨᲘᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:anastasia343@din.ge">anastasia343@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 4</span></div><div class="student-card__name">ᲑᲐᲠᲑᲐᲠᲐ ᲐᲮᲕᲔᲠᲓᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:barbara423@din.ge">barbara423@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 5</span></div><div class="student-card__name">ᲒᲘᲝᲠᲒᲘ ᲜᲐᲮᲣᲪᲠᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:giorgi262@din.ge">giorgi262@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 6</span></div><div class="student-card__name">ᲒᲘᲝᲠᲒᲘ ᲢᲐᲑᲐᲮᲛᲔᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:giorgi462@din.ge">giorgi462@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 7</span></div><div class="student-card__name">ᲒᲘᲝᲠᲒᲘ ᲑᲐᲥᲠᲐᲫᲔ</div><a class="student-card__mail" href="mailto:giorgi836@din.ge">giorgi836@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 8</span></div><div class="student-card__name">ᲒᲘᲝᲠᲒᲘ ᲖᲐᲠᲐᲕᲐᲜᲓᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:giorgi221@din.ge">giorgi221@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 9</span></div><div class="student-card__name">ᲗᲝᲛᲐ ᲛᲐᲠᲒᲐᲚᲘᲢᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:toma592@din.ge">toma592@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 10</span></div><div class="student-card__name">ᲗᲝᲠᲜᲘᲙᲔ ᲐᲖᲜᲐᲠᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:tornike346@din.ge">tornike346@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 11</span></div><div class="student-card__name">ᲘᲠᲛᲐ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:irma571@din.ge">irma571@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 12</span></div><div class="student-card__name">ᲚᲘᲖᲘ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:lizi942@din.ge">lizi942@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 13</span></div><div class="student-card__name">ᲚᲘᲙᲐ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:lika349@din.ge">lika349@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 14</span></div><div class="student-card__name">ᲚᲣᲙᲐ ᲙᲝᲞᲐᲚᲐᲫᲔ</div><a class="student-card__mail" href="mailto:luka900@din.ge">luka900@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 15</span></div><div class="student-card__name">ᲛᲐᲗᲔ ᲒᲝᲛᲔᲚᲐᲣᲠᲘ</div><a class="student-card__mail" href="mailto:mate146@din.ge">mate146@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 16</span></div><div class="student-card__name">ᲛᲐᲘᲐ ᲑᲐᲮᲑᲐᲮᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:maia856@din.ge">maia856@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 17</span></div><div class="student-card__name">ᲛᲐᲘᲙᲝ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:maiko478@din.ge">maiko478@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 18</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛᲘ ᲓᲐᲗᲣᲜᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariami576@din.ge">mariami576@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 19</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛᲘ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariami171@din.ge">mariami171@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 20</span></div><div class="student-card__name">ᲜᲐᲜᲣᲙᲐ ᲙᲝᲑᲘᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nanuka356@din.ge">nanuka356@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 21</span></div><div class="student-card__name">ᲜᲘᲜᲝ ᲡᲝᲖᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nino684@din.ge">nino684@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 22</span></div><div class="student-card__name">ᲠᲐᲢᲘ ᲮᲐᲠᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:rati343@din.ge">rati343@din.ge</a></article>
+          </div>
+        </section>
+
+        <section class="class-section panel" id="vardisubani-class-5">
+          <div class="class-section__head">
+            <div>
+              <h2>V კლასი</h2>
+              <p>20 მოსწავლე</p>
+            </div>
+          </div>
+
+          <div class="cards">
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 1</span></div><div class="student-card__name">ᲐᲚᲔᲥᲡᲐᲜᲓᲠᲔ ᲙᲝᲑᲘᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:alexandre815@din.ge">alexandre815@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 2</span></div><div class="student-card__name">ᲐᲜᲐ ᲛᲐᲠᲒᲐᲚᲘᲢᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:ana538@din.ge">ana538@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 3</span></div><div class="student-card__name">ᲑᲘᲫᲘᲜᲐ ᲡᲝᲖᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:bidzina543@din.ge">bidzina543@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 4</span></div><div class="student-card__name">ᲓᲐᲕᲘᲗᲘ ᲛᲐᲠᲒᲐᲚᲘᲢᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:daviti060@din.ge">daviti060@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 5</span></div><div class="student-card__name">ᲓᲐᲩᲘ ᲚᲔᲒᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:dachi288@din.ge">dachi288@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 6</span></div><div class="student-card__name">ᲔᲚᲔᲜᲔ ᲛᲔᲖᲕᲠᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:elene900@din.ge">elene900@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 7</span></div><div class="student-card__name">ᲔᲚᲔᲜᲔ ᲧᲣᲠᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:elene637@din.ge">elene637@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 8</span></div><div class="student-card__name">ᲔᲚᲔᲜᲔ ᲙᲝᲑᲘᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:elene075@din.ge">elene075@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 9</span></div><div class="student-card__name">ᲖᲣᲠᲐᲑᲘ ᲛᲠᲔᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:zurabi590@din.ge">zurabi590@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 10</span></div><div class="student-card__name">ᲗᲔᲛᲣᲠᲘ ᲯᲐᲨᲘᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:temuri970@din.ge">temuri970@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 11</span></div><div class="student-card__name">ᲘᲠᲐᲙᲚᲘ ᲨᲐᲨᲕᲘᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:irakli556@din.ge">irakli556@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 12</span></div><div class="student-card__name">ᲙᲝᲜᲡᲢᲐᲜᲢᲘᲜᲔ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:kote447@din.ge">kote447@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 13</span></div><div class="student-card__name">ᲚᲘᲖᲘ ᲬᲘᲗᲔᲚᲐᲣᲠᲘ</div><a class="student-card__mail" href="mailto:lizi805@din.ge">lizi805@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 14</span></div><div class="student-card__name">ᲛᲐᲗᲔ ᲛᲐᲠᲒᲐᲚᲘᲢᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mate404@din.ge">mate404@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 15</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛ ᲖᲐᲠᲐᲕᲐᲜᲓᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariam078@din.ge">mariam078@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 16</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛᲘ ᲗᲣᲨᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariami066@din.ge">mariami066@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 17</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛᲘ ᲛᲐᲘᲡᲣᲠᲐᲫᲔ</div><a class="student-card__mail" href="mailto:mariami235@din.ge">mariami235@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 18</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛᲘ ᲮᲝᲖᲑᲔᲠᲣᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariami992@din.ge">mariami992@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 19</span></div><div class="student-card__name">ნიკოლოზ ონიკაშვილი</div><a class="student-card__mail" href="mailto:nikoloz771@din.ge">nikoloz771@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 20</span></div><div class="student-card__name">ᲜᲘᲙᲝᲚᲝᲖᲘ ᲑᲐᲮᲑᲐᲮᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nikolozi991@din.ge">nikolozi991@din.ge</a></article>
+          </div>
+        </section>
+
+        <section class="class-section panel" id="vardisubani-class-6">
+          <div class="class-section__head">
+            <div>
+              <h2>VI კლასი</h2>
+              <p>23 მოსწავლე</p>
+            </div>
+          </div>
+
+          <div class="cards">
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 1</span></div><div class="student-card__name">ᲐᲜᲐᲡᲢᲐᲡᲘᲐ ᲑᲐᲠᲓᲐᲜᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:anastasia859@din.ge">anastasia859@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 2</span></div><div class="student-card__name">ᲒᲐᲑᲠᲘᲔᲚᲘ ᲛᲐᲘᲡᲣᲠᲐᲫᲔ</div><a class="student-card__mail" href="mailto:gabrieli126@din.ge">gabrieli126@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 3</span></div><div class="student-card__name">ᲒᲘᲒᲘ ᲚᲔᲒᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:gigi582@din.ge">gigi582@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 4</span></div><div class="student-card__name">ᲔᲚᲔᲜᲔ ᲡᲝᲖᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:elene184@din.ge">elene184@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 5</span></div><div class="student-card__name">ᲔᲚᲘᲡᲐᲕᲔᲓ ᲡᲘᲓᲘᲠᲝᲞᲣᲚᲝ</div><a class="student-card__mail" href="mailto:elisaved099@din.ge">elisaved099@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 6</span></div><div class="student-card__name">ᲕᲐᲮᲝ ᲒᲚᲣᲠᲫᲘᲫᲔ</div><a class="student-card__mail" href="mailto:vakho435@din.ge">vakho435@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 7</span></div><div class="student-card__name">ᲖᲐᲖᲐ ᲤᲐᲠᲔᲨᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:zaza418@din.ge">zaza418@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 8</span></div><div class="student-card__name">ᲖᲔᲖᲕᲐ ᲮᲣᲪᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:zezva690@din.ge">zezva690@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 9</span></div><div class="student-card__name">ᲗᲐᲙᲝ ᲑᲐᲮᲑᲐᲮᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:tako606@din.ge">tako606@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 10</span></div><div class="student-card__name">ᲗᲐᲛᲐᲠᲘ ᲚᲔᲒᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:tamari824@din.ge">tamari824@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 11</span></div><div class="student-card__name">ᲗᲐᲛᲐᲠᲘ ᲒᲚᲣᲠᲫᲘᲫᲔ</div><a class="student-card__mail" href="mailto:tamari391@din.ge">tamari391@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 12</span></div><div class="student-card__name">ᲗᲝᲠᲜᲘᲙᲔ ᲧᲐᲠᲐᲣᲚᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:tornike907@din.ge">tornike907@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 13</span></div><div class="student-card__name">ᲚᲔᲥᲡᲝ ᲡᲣᲛᲑᲐᲫᲔ</div><a class="student-card__mail" href="mailto:leqso819@din.ge">leqso819@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 14</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛ ᲛᲐᲠᲒᲐᲚᲘᲢᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariam939@din.ge">mariam939@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 15</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛ ᲙᲔᲠᲔᲡᲔᲚᲘᲫᲔ</div><a class="student-card__mail" href="mailto:mariam381@din.ge">mariam381@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 16</span></div><div class="student-card__name">ᲛᲐᲠᲘᲐᲛᲘ ᲗᲣᲨᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:mariami217@din.ge">mariami217@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 17</span></div><div class="student-card__name">ᲜᲐᲗᲘᲐ ᲮᲐᲕᲐᲖᲣᲠᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:natia143@din.ge">natia143@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 18</span></div><div class="student-card__name">ᲜᲔᲡᲢᲐᲜᲘ ᲒᲝᲓᲔᲠᲫᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nestani367@din.ge">nestani367@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 19</span></div><div class="student-card__name">ᲜᲘᲙᲝᲚᲝᲖᲘ ᲑᲐᲮᲑᲐᲮᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nikolozi734@din.ge">nikolozi734@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 20</span></div><div class="student-card__name">ᲜᲘᲙᲝᲚᲝᲖᲘ ᲗᲣᲨᲘᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nikolozi905@din.ge">nikolozi905@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 21</span></div><div class="student-card__name">ᲜᲘᲜᲝ ᲑᲐᲮᲑᲐᲮᲐᲨᲕᲘᲚᲘ</div><a class="student-card__mail" href="mailto:nino108@din.ge">nino108@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 22</span></div><div class="student-card__name">ᲡᲐᲜᲓᲠᲝ ᲡᲣᲛᲑᲐᲫᲔ</div><a class="student-card__mail" href="mailto:sandro849@din.ge">sandro849@din.ge</a></article>
+            <article class="student-card"><div class="student-card__top"><span class="student-card__num">№ 23</span></div><div class="student-card__name">ᲨᲝᲗᲘᲙᲝ ᲙᲝᲑᲐᲮᲘᲫᲔ</div><a class="student-card__mail" href="mailto:shotiko959@din.ge">shotiko959@din.ge</a></article>
+          </div>
+        </section>
+      </section>
+
+      <section class="school-block" id="school-6-block" data-school-block="school6">
+        <section class="class-section panel" id="school-6">
+          <div class="class-section__head">
+            <div>
+              <h2>№ 6 სკოლა</h2>
+              <p>ცარიელი კლასები მზად არის.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="class-section panel" id="school6-class-2">
+          <div class="class-section__head"><div><h2>II კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">№ 6 სკოლის II კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="school6-class-3">
+          <div class="class-section__head"><div><h2>III კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">№ 6 სკოლის III კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="school6-class-4">
+          <div class="class-section__head"><div><h2>IV კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">№ 6 სკოლის IV კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="school6-class-5">
+          <div class="class-section__head"><div><h2>V კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">№ 6 სკოლის V კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="school6-class-6">
+          <div class="class-section__head"><div><h2>VI კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">№ 6 სკოლის VI კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+      </section>
+
+      <section class="school-block" id="school-tetritsklebi-block" data-school-block="tetritsklebi">
+        <section class="class-section panel" id="school-tetritsklebi">
+          <div class="class-section__head">
+            <div>
+              <h2>თეთრიწყლების სკოლა</h2>
+              <p>ცარიელი კლასები მზად არის.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="class-section panel" id="tetritsklebi-class-2">
+          <div class="class-section__head"><div><h2>II კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">თეთრიწყლების სკოლის II კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="tetritsklebi-class-3">
+          <div class="class-section__head"><div><h2>III კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">თეთრიწყლების სკოლის III კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="tetritsklebi-class-4">
+          <div class="class-section__head"><div><h2>IV კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">თეთრიწყლების სკოლის IV კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="tetritsklebi-class-5">
+          <div class="class-section__head"><div><h2>V კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">თეთრიწყლების სკოლის V კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+        <section class="class-section panel" id="tetritsklebi-class-6">
+          <div class="class-section__head"><div><h2>VI კლასი</h2><p>მონაცემები დაემატება.</p></div></div>
+          <div class="placeholder">თეთრიწყლების სკოლის VI კლასის მოსწავლეთა სია აქ დაემატება.</div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const schoolConfig = {
+      vardisubani: {
+        label: 'ვარდისუბანი:',
+        root: 'school-vardisubani',
+        classes: [
+          { id: 'vardisubani-class-2', title: 'II კლასი' },
+          { id: 'vardisubani-class-3', title: 'III კლასი' },
+          { id: 'vardisubani-class-4', title: 'IV კლასი' },
+          { id: 'vardisubani-class-5', title: 'V კლასი' },
+          { id: 'vardisubani-class-6', title: 'VI კლასი' }
+        ]
+      },
+      school6: {
+        label: '№ 6 სკოლა:',
+        root: 'school-6',
+        classes: [
+          { id: 'school6-class-2', title: 'II კლასი' },
+          { id: 'school6-class-3', title: 'III კლასი' },
+          { id: 'school6-class-4', title: 'IV კლასი' },
+          { id: 'school6-class-5', title: 'V კლასი' },
+          { id: 'school6-class-6', title: 'VI კლასი' }
+        ]
+      },
+      tetritsklebi: {
+        label: 'თეთრიწყლები:',
+        root: 'school-tetritsklebi',
+        classes: [
+          { id: 'tetritsklebi-class-2', title: 'II კლასი' },
+          { id: 'tetritsklebi-class-3', title: 'III კლასი' },
+          { id: 'tetritsklebi-class-4', title: 'IV კლასი' },
+          { id: 'tetritsklebi-class-5', title: 'V კლასი' },
+          { id: 'tetritsklebi-class-6', title: 'VI კლასი' }
+        ]
+      }
+    };
+
+    const schoolMenuLinks = [...document.querySelectorAll('#schoolMenu a')];
+    const classMenu = document.getElementById('classMenu');
+    const classMenuLabel = document.getElementById('classMenuLabel');
+    const schoolBlocks = [...document.querySelectorAll('[data-school-block]')];
+
+    function renderClassMenu(schoolKey) {
+      const config = schoolConfig[schoolKey];
+      classMenuLabel.textContent = config.label;
+      classMenu.innerHTML = config.classes
+        .map((item, index) => `
+          <li>
+            <a href="#${item.id}" class="${index === 0 ? 'active' : ''}" data-class-link="${item.id}">${item.title}</a>
+          </li>
+        `)
+        .join('');
+
+      [...classMenu.querySelectorAll('a')].forEach((link) => {
+        link.addEventListener('click', () => {
+          [...classMenu.querySelectorAll('a')].forEach((a) => a.classList.remove('active'));
+          link.classList.add('active');
+        });
+      });
+    }
+
+    function showSchool(schoolKey) {
+      schoolMenuLinks.forEach((link) => {
+        link.classList.toggle('active', link.dataset.school === schoolKey);
+      });
+
+      schoolBlocks.forEach((block) => {
+        block.classList.toggle('active', block.dataset.schoolBlock === schoolKey);
+      });
+
+      renderClassMenu(schoolKey);
+    }
+
+    schoolMenuLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const schoolKey = link.dataset.school;
+        showSchool(schoolKey);
+        const target = document.getElementById(schoolConfig[schoolKey].root);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    const hash = window.location.hash.replace('#', '');
+    const initialSchool = Object.entries(schoolConfig).find(([, config]) => {
+      return config.root === hash || config.classes.some((item) => item.id === hash);
+    });
+
+    if (initialSchool) {
+      showSchool(initialSchool[0]);
+    } else {
+      showSchool('vardisubani');
+    }
+  </script>
+</body>
+</html>
